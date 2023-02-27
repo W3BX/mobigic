@@ -1,0 +1,22 @@
+{
+  "name": "mobigic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/W3BX/Mobigic.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/W3BX/Mobigic/issues"
+  },
+  "homepage": "https://github.com/W3BX/Mobigic#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
