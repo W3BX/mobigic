@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 require('dotenv').config();
-const uri = process.env.MONGOCREDS
+//connect to mongoDB Atlas
+// const uri = process.env.MONGOCREDS
+
+// connect to local mongoDB
+const uri = `mongodb://localhost:27017/mobigic`
 const db = mongoose.connection
 
 try {
