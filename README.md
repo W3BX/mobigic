@@ -1,4 +1,4 @@
-# mobigic task
+# Mobigic task
 
 ## Connect server with local monog(compass)
 Server will run on PORT 5000
