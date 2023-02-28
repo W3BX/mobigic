@@ -1,6 +1,6 @@
 # Mobigic task
 
-## Connect server with local monog(compass)
+## Connect server with local monogDB(compass)
 Server will run on PORT 5000
 
 ## Connect with react 
