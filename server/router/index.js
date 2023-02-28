@@ -5,10 +5,12 @@ const user = require('../models/user')
 const multer = require('multer');
 const fs = require('fs')
 
+//Create upload folder 
 if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads');
 }
 
+//setting up multer for file upload
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads/');
@@ -43,6 +45,7 @@ router.post('/auth', async (req, res) => {
         if (verifyUser) {
             if (verifyUser.password == password) {
                 res.cookie('token', username);
+                response.User = verifyUser
                 response.msg = 'User verified'
             } else {
                 response.status = 400
@@ -108,7 +111,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     if (req.file) {
-        
+
         const file = req.file.originalname
         const token = req.cookies['token']
         const code = Math.floor(100000 + Math.random() * 900000)
@@ -122,6 +125,46 @@ router.post('/upload', upload.single('file'), async (req, res) => {
         }
 
     }
+
+})
+
+//delete files
+router.post('/delete', async (req, res) => {
+
+    let response = {
+        status: 200,
+        msg: ''
+    }
+    const { fl } = req.body
+    const token = req.cookies['token']
+
+    fs.unlink(`uploads/${fl}`, async function (err) {
+        if (err) return console.log(err);
+        const imgDelete = await user.updateOne({ username: token },
+            { $pull: { 'files': { flName: fl } } })
+        if (imgDelete.acknowledged) {
+            const User = await user.findOne({ username: token })
+            response.User = User
+            response.msg = 'file deleted successfully'
+            res.send(response)
+        }
+    });
+
+
+
+})
+
+//download file
+router.post('/download', async (req, res) => {
+
+    let response = {
+        status: 200,
+        msg: ''
+    }
+
+    const { fl } = req.body
+    const file = `uploads/${fl}`;
+    res.download(file);
 
 })
 
