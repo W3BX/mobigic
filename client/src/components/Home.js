@@ -1,32 +1,41 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Cookies from 'js-cookie'
 import { uselogin, uselogout, fileUpload } from '../api'
 import FilesComp from './FilesComp'
 
 const Home = () => {
 
+    const ref = useRef();
+
     const [cookie, setcookie] = useState(false)
     const [username, setusername] = useState()
     const [password, setpassword] = useState()
     const [addFile, setaddFile] = useState()
-    const [FileArray, setFileArray] = useState([])
+    const [FileArray, setFileArray] = useState(JSON.parse(localStorage.getItem('file')))
 
     //Check if user is logged in
     useEffect(() => {
         if (Cookies.get('token')) {
             setcookie(true)
-            setFileArray(JSON.parse(localStorage.getItem('files')))
         } else {
             setcookie(false)
         }
-
     }, [])
+
+    useEffect(() => {
+        if (FileArray.length > 0) {
+            localStorage.setItem('file', JSON.stringify(FileArray))
+        }
+
+    }, [FileArray])
+
 
     //logout user
     const logout = async () => {
         const logout = await uselogout()
         if (logout) {
             setcookie(false)
+            localStorage.removeItem('file')
             setusername('')
             setpassword('')
         }
@@ -38,7 +47,7 @@ const Home = () => {
             const UserLog = await uselogin(username, password)
             if (UserLog) {
                 setcookie(true)
-
+                setFileArray(UserLog.User.files)
             }
         }
     }
@@ -49,22 +58,28 @@ const Home = () => {
             const formData = new FormData();
             formData.append("file", addFile);
             const UserLog = await fileUpload(formData)
-            localStorage.setItem('files', JSON.stringify(UserLog.User.files))
             setFileArray(UserLog.User.files)
+            ref.current.value = ""
+            setaddFile('')
         }
     }
 
     return (
         <div className='container'>
             <div className='py-3'>
-                <div className="text-center">Mobigic</div>
+                <div className="text-center">Mobigic Task</div>
             </div>
-            <div className='p-4'>
-                <span className='w-20 float-start'>
+            <div className='p-4 row'>
+                <span className='float-start col-sm-6'>
                     {cookie ?
-                        <span className='d-flex'>
-                            <input type="file" className="form-control mx-2" onChange={(e) => setaddFile(e.target.files[0])} />
-                            <button className='btn btn-outline-primary' disabled={addFile ? false : true} onClick={() => fileSubmit()} >Save</button>
+                        <span className='row'>
+                            <span className='col-sm-8'>
+                                <input type="file" ref={ref} name='fileupload' className="form-control" onChange={(e) => setaddFile(e.target.files[0])} />
+                            </span>
+                            <span className='col-sm-4 '>
+                                <button className='btn btn-outline-primary float-start' disabled={addFile ? false : true} onClick={() => fileSubmit()} >Save</button>
+                            </span>
+
                         </span>
                         :
                         <>
@@ -75,12 +90,12 @@ const Home = () => {
                     }
 
                 </span>
-                <span className='float-end '>
-                    <button className='btn btn-outline-primary' onClick={() => cookie ? logout() : login()} >{cookie ? "Logout" : "Login"}</button>
+                <span className='col-sm-6'>
+                    <button className='btn btn-outline-primary float-end' onClick={() => cookie ? logout() : login()} >{cookie ? "Logout" : "Login"}</button>
                 </span>
             </div>
-            {cookie && <div className='my-5 border'>
-                <FilesComp FileArray={FileArray} />
+            {cookie && <div className='my-5'>
+                <FilesComp FileArray={FileArray} setFileArray={setFileArray} />
             </div>}
         </div>
     )
